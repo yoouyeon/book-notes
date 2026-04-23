@@ -21,6 +21,16 @@ Output:
 book(면접을-위한-CS-전공지식-노트): 목차 수정
 ```
 
+## book: 완독
+
+Input:
+- `git diff --cached` 결과: 루트 `README.md`에서 책 상태가 `🟡 읽는 중` → `🟢 완독`으로 변경
+
+Output:
+```
+book(코어-자바스크립트): 완독
+```
+
 ## note: 챕터 노트 추가 (1개)
 
 Input:
