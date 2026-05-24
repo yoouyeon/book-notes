@@ -2,6 +2,6 @@
 book: 면접을 위한 CS 전공지식 노트
 status: draft
 date:
+title: "2.5 HTTP"
+category: ["면접을-위한-CS-전공지식-노트"]
 ---
-
-# 2.5 HTTP

@@ -2,10 +2,9 @@
 book: 면접을 위한 CS 전공지식 노트
 status: completed
 date: 2026-04-29
+title: "2.2 TCP/IP 4계층 모델"
+category: ["면접을-위한-CS-전공지식-노트"]
 ---
-
-# 2.2 TCP/IP 4계층 모델
-
 ## 계층 구조
 
 스위트 (suite) : 뭔가를 모아둔 것. 집합.

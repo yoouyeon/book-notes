@@ -2,10 +2,9 @@
 book: 코어 자바스크립트
 status: completed
 date: 2026-04-23
+title: "3 this"
+category: ["코어-자바스크립트"]
 ---
-
-# 3 this
-
 ## this
 
 **실행 컨텍스트가 생성될 때 함께 결정**된다 = **함수를 호출할 때 결정**된다.
