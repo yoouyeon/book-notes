@@ -1,7 +1,7 @@
 ---
 book: 코어 자바스크립트
 status: completed
-date: 2026-04-23
+date: 2026-04-23T11:00:00+09:00
 title: "3 this"
 category: ["코어-자바스크립트"]
 ---
