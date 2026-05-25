@@ -1,7 +1,7 @@
 ---
 book: 면접을 위한 CS 전공지식 노트
 status: completed
-date: 2026-04-29
+date: 2026-04-29T09:00:00+09:00
 title: "2.2 TCP/IP 4계층 모델"
 category: ["면접을-위한-CS-전공지식-노트"]
 ---
