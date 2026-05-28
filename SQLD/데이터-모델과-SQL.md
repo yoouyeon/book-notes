@@ -26,3 +26,11 @@ category: ["SQLD"]
 
 WHERE 절은 TRUE인 것만 반환한다.
 따라서 `WHERE NULL=NULL` 은 그냥 빈 값. 아무 행도 나오지 않는다.
+
+## SQL Server와 Oracle의 `NULL` 인덱스 저장
+
+SQL Server는 null 값을 인덱스 맨 앞에 저장한다.
+Oracle은 맨 뒤에 저장한다.
+
+SQL Server는 인덱스 구성 칼럼이 모두 null인 레코드도 인덱스에 저장한다.
+Oracle에서 인덱스 구성 칼럼 중 하나라도 null이 아닌 레코드만 인덱스에 저장한다.
