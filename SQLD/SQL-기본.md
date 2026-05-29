@@ -67,6 +67,12 @@ GRADE가 'B'이고 STATUS가 'ACTIVE'인 데이터
 
 ## GROUP BY, HAVING 절
 
+### 집계 함수
+
+집계 함수 : `COUNT`, `SUM`, `AVG`
+
+집계 함수는 `NULL`을 제외하고 집계한다.
+
 ### 집계 함수와 `WHERE` 절
 
 `AVG`와 같은 집계 함수는 `WHERE` 절에서 쓸 수 없다.
@@ -77,19 +83,45 @@ GRADE가 'B'이고 STATUS가 'ACTIVE'인 데이터
 
 ## 조인
 
-### 조인 종류
+### 구식 Oracle-style 조인 문법과 ANSI 조인 문법
 
-`INNER JOIN`
+구식 Oracle-style 조인 문법 : 테이블은 FROM에 콤마로 나열하고, 조인 조건은 WHERE에 적는 방식
 
-`LEFT JOIN`
+```sql
+SELECT *
+FROM TAB1, TAB2
+ORDER BY 1;
+```
 
-`RIGHT JOIN`
+`FROM TAB1, TAB2` 을 보면 조건이 없기 때문에 두 테이블을 조건 없이 모두 조합한다 ⇒ Cartesian Product 또는 CROSS JOIN
 
-`FULL OUTER JOIN`
+그래서 ANSI 방식으로는 이렇게 적을 수 있다.
 
-`CROSS JOIN`
+ANSI 방식 : `JOIN ... ON ...`처럼 표준 SQL 조인 문법을 사용해서 테이블 연결 조건을 명확하게 쓰는 방식
 
-### FULL OUTER JOIN
+```sql
+SELECT *
+FROM TAB1
+	CROSS JOIN TAB2
+	ORDER BY 1;
+```
+
+※ CROSS JOIN 은 ON 조인 절을 사용하지 않는다.
+
+### `LEFT (OUTER) JOIN`
+
+왼쪽 테이블의 행은 전부 살리고, 오른쪽 테이블에서 조건이 맞는 행이 있으면 붙인다, 없으면 오른쪽 컬럼은 `NULL`로 채운다.
+
+```sql
+FROM T1
+LEFT OUTER JOIN T2
+  ON T1.COL = T2.COL
+```
+
+> T1은 전부 남기고, T1.COL = T2.COL인 T2 행이 있으면 붙인다. 없으면 T2 쪽 컬럼은 NULL.
+>
+
+### FULL (OUTER) JOIN
 
 양쪽으로 OUTER JOIN을 하는 것이다.
 내부적으로 LEFT JOIN과 RIGHT JOIN을 하는 것.

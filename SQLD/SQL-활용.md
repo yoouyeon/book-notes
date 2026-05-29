@@ -133,9 +133,28 @@ GROUP BY DEPTNO
 
 ## 윈도우 함수
 
+### `PARTITION BY`
+
+“⭐️별로 따로 값” 을 구해야 하는 상황이라면 `PARTITION BY ⭐️` 을 사용해야 한다.
+
+이렇게 해서 ⭐️ 별로 따로 계산이 가능함. `GROUP BY`처럼 행을 합쳐서 줄이는 것이 아니라, 원래 행은 유지한 채 계산 범위만 나눈다.
+
+### `RANGE BETWEEN A AND B`
+
+`RANGE BETWEEN A AND B` : `OVER(...)` 안에서 윈도우 함**수의 계산 대상 행 범위를 정하는 문법**
+
+- `UNBOUNDED PRECEDING` : 맨 처음 행부터
+- `CURRENT ROW`: 현재 행까지
+
 ### `RANK`
 
 `RANK` : 순위를 구하는 윈도우 함수
+
+### `LAG`, `LEAD`
+
+`LAG(컬럼, 오프셋, 디폴트`) : 컬럼의 오프셋만큼 이전의 행을 가져오고, 없으면 디폴트 값을 출력한다. (오프셋 기본값: 1, 디폴트 기본값 : NULL) ⇒ 현재 행 기준 이전 행의 값을 가져옴
+
+`LEAD(컬럼, 오프셋, 디폴트)` : 컬럼의 오프셋만큼 다음의 행을 가져오고, 없으면 디폴트 값을 출력한다. (오프셋 기본값: 1, 디폴트 기본값: NULL) ⇒ 현재 행 기준 다음 행의 값을 가져옴
 
 ### `NTILE(ARGUMENT)`
 
@@ -160,6 +179,11 @@ NTILE(4) OVER (ORDER BY SAL DESC)
 ### TOP-N 서브쿼리
 
 TOP-N 서브쿼리 : INLINE VIEW의 정렬된 데이터를 ROWNUM을 이용해서 결과 행 수를 제한하거나 TOP(N) 조건을 사용하는 서브쿼리
+
+### 상위 N개의 데이터 추출하기
+
+1. 인라인 뷰를 이용해서 원하는 컬럼을 기준으로 정렬한 가상의 테이블 만들기 : `FROM (SELECT * FROM EMPORDER BY SALARY DESC)`
+2. `WHERE ROWNUM ≤ N`을 이용해 상위 N개 데이터를 추출
 
 ## 계층형 질의와 셀프 조인
 
