@@ -1,7 +1,7 @@
 ---
 book: SQLD
 status: completed
-date: 2026-05-30
+date: 2026-05-30T01:54:00+09:00
 title: "SQL 기본"
 category: ["SQLD"]
 ---
