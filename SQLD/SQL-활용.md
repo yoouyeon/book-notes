@@ -6,262 +6,122 @@ title: "SQL 활용"
 category: ["SQLD"]
 ---
 
-## 서브쿼리
+## 서브 쿼리
 
-### Scala Subquery
-
-Scala Subquery (스칼라 서브쿼리) : 행마다 서브쿼리를 실행해서 하나의 값을 얻어낸다. 최종적으로 컬럼 하나를 반환함.
-
-### SELECT 절에서 사용되는 스칼라 서브쿼리
+**스칼라 서브쿼리(Scalar Subquery)** : 행마다 서브쿼리를 실행해서 하나의 값을 얻어낸다. 최종적으로 컬럼 하나를 반환하며, 값이 없으면 NULL을 반환한다.
 
 ```sql
-SELECT <어쩌고> (SELECT LOC
-FROM DEPARTMENT D
-WHERE D.DEPT_ID=E.DEPT_ID)
+SELECT <컬럼>, (SELECT LOC
+                FROM DEPARTMENT D
+                WHERE D.DEPT_ID = E.DEPT_ID)
+FROM ...
 ```
 
-`()` 안이 바로 스칼라 서브쿼리
-DEPARTMENT 테이블의 모든 행에서 해당 구문이 실행되는 것. 그리고 하나의 값을 반환한다. 없으면 NULL을 반환한다.
+**상호 연관 서브쿼리** : 서브쿼리가 메인쿼리의 행 수만큼 실행되는 쿼리. 실행 속도가 상대적으로 떨어지지만, 복잡한 일반 배치 프로그램을 대체할 수 있다.
 
-### 상호 연관 서브쿼리
+**INLINE VIEW** : FROM 절에 사용되는 서브쿼리. SQL문에서 VIEW나 테이블처럼 사용된다.
 
-서브쿼리가 메인쿼리의 행 수 만큼 실행되는 쿼리.
-따라서 실행 속도가 상대적으로 떨어진다.
-복잡한 일반 배치 프로그램을 대체할 수 있어 조건에 맞는다면 유용하다.
+**ORDER BY 절의 서브쿼리** : 서브쿼리는 ORDER BY 절에서 사용할 수 있다.
 
-### INLINE VIEW
-
-INLINE VIEW : FROM 절에 사용되는 서브쿼리. SQL문에서 VIEW나 테이블처럼 사용되는 서브쿼리
-
-### ORDER BY 절의 서브쿼리
-
-서브쿼리는 Order by 절에서 사용할 수 있다.
-
-### 다중행 연산자
-
-IN, ANY, ALL : 다중행 연산자. 서브쿼리의 결과로 하나 이상의 데이터가 RETURN되는 서브쿼리
+**다중행 연산자** : `IN`, `ANY`, `ALL`. 서브쿼리의 결과로 하나 이상의 데이터가 반환되는 경우에 사용한다.
 
 ```sql
 deptno <> ANY (SELECT deptno FROM Emp)
+-- Emp의 부서번호 목록 중 하나라도 내 deptno와 다른 값이 있으면 TRUE
 ```
-
-> Emp의 부서번호 목록 중 하나라도 내 deptno와 다른 값이 있으면 TRUE
 
 ## 집합 연산자
 
-두 개 이상의 테이블에서 조인을 하지 않고 관련된 데이터를 조회한다.
+**집합 연산자** : 두 개 이상의 테이블에서 조인을 하지 않고 관련된 데이터를 조회할 때 사용한다.
 
-- Union all
-- Union
-- Except
+- `UNION ALL`
+- `UNION`
+- `EXCEPT`
 
-Union은 내부적으로 SORT가 발생하기 때문에, 성능 측면에서는 Union보다 Union All이 우수하다.
+**`UNION` vs `UNION ALL`** : `UNION`은 내부적으로 SORT가 발생하기 때문에 성능 측면에서는 `UNION ALL`이 우수하다.
 
 ## 그룹 함수
 
-### `CUBE`
-
-`CUBE` : 그룹함수
-
-제시된 칼럼에 대해서 결합 가능한 모든 집계를 계산한다.
-
-일반 `GROUP BY` : `GROUP BY DEPTNO, JOB`
-
-```
-DEPTNO | JOB      | COUNT(*)
--------+----------+---------
-10     | CLERK    | 1
-10     | MANAGER  | 1
-20     | CLERK    | 2
-20     | ANALYST  | 2
-```
-
-`CUBE(DEPTNO, JOB)`은 아래 네 가지를 전부 만든다.
+**`CUBE`** : 제시된 컬럼에 대해 결합 가능한 모든 집계를 계산한다. `CUBE(DEPTNO, JOB)`은 아래 네 가지를 전부 계산한다.
 
 ```sql
 GROUP BY DEPTNO, JOB
 GROUP BY DEPTNO
 GROUP BY JOB
-GROUP BY ()
+GROUP BY ()        -- 전체 합계
 ```
 
-```
-DEPTNO | JOB      | COUNT(*)
--------+----------+---------
-10     | CLERK    | 1      -- 부서+직무별
-10     | MANAGER  | 1      -- 부서+직무별
-20     | CLERK    | 2      -- 부서+직무별
-20     | ANALYST  | 2      -- 부서+직무별
-
-10     | NULL     | 2      -- 부서별 소계
-20     | NULL     | 4      -- 부서별 소계
-
-NULL   | CLERK    | 3      -- 직무별 소계
-NULL   | MANAGER  | 1      -- 직무별 소계
-NULL   | ANALYST  | 2      -- 직무별 소계
-
-NULL   | NULL     | 6      -- 전체 합계
-```
-
-### `GROUP BY GROUPING SETS (...)`
-
-`GROUP BY GROUPING SETS (...)`는 내가 원하는 집계 기준들을 직접 골라서 나열하는 문법
+**`GROUPING SETS(...)`** : 원하는 집계 기준들을 직접 지정해서 나열하는 문법.
 
 ```sql
-GROUP BY GROUPING SETS (
-  DEPTNO,
-  JOB,
-  (DEPTNO, JOB),
-  ()
-);
+GROUP BY GROUPING SETS (DEPTNO, JOB, (DEPTNO, JOB), ())
 ```
 
-아래 4개의 `GROUP BY`를 한 번에 실행하는 것과 같다
+- `GROUPING SETS(A, B)` → `GROUP BY A` + `GROUP BY B`
+- `GROUPING SETS((A, B), A)` → `GROUP BY A, B` + `GROUP BY A`
 
-```sql
-GROUP BY DEPTNO
-GROUP BY JOB
-GROUP BY DEPTNO, JOB
-전체 집계
-```
-
-`GROUPING SETS(A,B`) → `GROUP BY A; GROUP BY B;`
-
-`GROUPING SETS((A,B), A)` → `GROUP BY A,B; GROUP BY A;`
-
-### `GROUP BY ROLLUP( … )`
-
-`GROUP BY ROLLUP( … )` 은 계층적인 소계와 총계를 구하는 문법
-
-`GROUP BY ROLLUP(DEPTNO, JOB)` 은 아래 집계를 한번에 구하는 것과 같다.
+**`ROLLUP(...)`** : 계층적인 소계와 총계를 구하는 문법. 왼쪽에서 오른쪽으로 단계적으로 접기 때문에 인자 순서에 따라 결과가 다르다. `ROLLUP(DEPTNO, JOB)`은 아래를 한 번에 구한다.
 
 ```sql
 GROUP BY DEPTNO, JOB
 GROUP BY DEPTNO
-전체 집계
+-- 전체 집계
 ```
-
-중요한 것은 왼쪽에서 오른쪽으로 단계적으로 접는다는 것. 그래서 인자 순서에 따라서 결과가 다르다.
-
-`ROLLUP(DEPTNO, JOB)` 이면
-
-- (DEPTNO, JOB)
-- (DEPTNO)
-- ()
-
-`ROLLUP(JOB, DEPTNO)` 이면
-
-- (JOB, DEPTNO)
-- (JOB)
-- ()
 
 ## 윈도우 함수
 
-### `PARTITION BY`
+**`PARTITION BY`** : 특정 컬럼 값을 기준으로 계산 범위를 나누는 문법. `GROUP BY`처럼 행을 줄이지 않고 원래 행을 유지한 채로 그룹별 집계를 계산한다. `PARTITION BY` 절이 없으면 전체 행을 대상으로 계산한다.
 
-“⭐️별로 따로 값” 을 구해야 하는 상황이라면 `PARTITION BY ⭐️` 을 사용해야 한다.
+**`WINDOWING` 절** : `OVER(...)` 안에서 윈도우 함수의 계산 대상 행 범위를 정한다. `WINDOWING` 절을 사용하려면 `ORDER BY`가 있어야 한다.
 
-이렇게 해서 ⭐️ 별로 따로 계산이 가능함. `GROUP BY`처럼 행을 합쳐서 줄이는 것이 아니라, 원래 행은 유지한 채 계산 범위만 나눈다.
+- **`UNBOUNDED PRECEDING`** : 맨 처음 행부터.
+- **`CURRENT ROW`** : 현재 행까지.
 
-`GROUP BY`는 특정 컬럼 값을 기준으로 행을 그룹화해서 집계된 결과만 출력하기 때문에 출력 행 수가 줄어든다.
+**`RANK()`** : 순위를 구하는 윈도우 함수. 동일한 값이 있으면 동일한 순위를 부여하고 다음 순위를 건너뛴다. `ROW_NUMBER()`는 동일한 값이 있어도 고유한 순위를 부여한다.
 
-하지만 윈도우 함수는 행 수를 줄이지 않고, 각 행에 대한 집계 결과나 순위 같은 값을 추가로 계산하는 것이다.
+**`LAG(컬럼, 오프셋, 디폴트)`** : 현재 행 기준 이전 행의 값을 가져온다. 오프셋 기본값은 1, 디폴트 기본값은 NULL이다.
 
-윈도우 함수인 `PARTITION BY`는 `GROUP BY`처럼 데이터를 그룹으로 나누는 역할을 하지만, 출력 행 수는 유지된다는 점이 다르다.
+**`LEAD(컬럼, 오프셋, 디폴트)`** : 현재 행 기준 다음 행의 값을 가져온다. 오프셋 기본값은 1, 디폴트 기본값은 NULL이다.
 
-- `PARTITION BY` 컬럼;을 하면 각 컬럼의 값에 대해 윈도우 행 범위를 넘어갈 수 없다.
-- WINDOWING 절을 사용하려면 `ORDER BY`가 있어야 한다.
-- `PARTITION BY` 절이 없으면 전체 행을 대상으로 진행한다.
-
-### `RANGE BETWEEN A AND B`
-
-`RANGE BETWEEN A AND B` : `OVER(...)` 안에서 윈도우 함**수의 계산 대상 행 범위를 정하는 문법**
-
-- `UNBOUNDED PRECEDING` : 맨 처음 행부터
-- `CURRENT ROW`: 현재 행까지
-
-### `RANK`
-
-`RANK` : 순위를 구하는 윈도우 함수
-
-### 우선 순위를 계산하는 윈도우 함수
-
-우선 순위를 계산하는 윈도우 함수
-
-- ROW_NUMBER() 함수는 동일한 우선순위가 나올 때 고유 값을 부여한다.
-
-### `LAG`, `LEAD`
-
-`LAG(컬럼, 오프셋, 디폴트`) : 컬럼의 오프셋만큼 이전의 행을 가져오고, 없으면 디폴트 값을 출력한다. (오프셋 기본값: 1, 디폴트 기본값 : NULL) ⇒ 현재 행 기준 이전 행의 값을 가져옴
-
-`LEAD(컬럼, 오프셋, 디폴트)` : 컬럼의 오프셋만큼 다음의 행을 가져오고, 없으면 디폴트 값을 출력한다. (오프셋 기본값: 1, 디폴트 기본값: NULL) ⇒ 현재 행 기준 다음 행의 값을 가져옴
-
-### `NTILE(ARGUMENT)`
-
-`NTILE(ARGUMENT)` : 윈도우함수. 데이터를 `ARGUMENT` 값으로 등분한다.
-
-`OVER()` : 윈도우함수 적용 기준을 정하는 문법
+**`NTILE(N)`** : 전체 데이터를 N개의 그룹으로 균등하게 나누고 각 행에 그룹 번호를 부여한다.
 
 ```sql
 NTILE(4) OVER (ORDER BY SAL DESC)
+-- SAL 내림차순으로 정렬한 데이터를 4등분
 ```
 
-- `NTILE(4)` : 데이터를 4등분 할것임 → 어떤 기준으로 등분할건데?
--  `OVER (ORDER BY SAL DESC)` : SAL을 내림차순 정렬한 데이터를
+## TOP N 쿼리
 
-## Top N 쿼리
+**`ROWNUM`** : SELECT 문에서 행이 인출될 때 순서대로 부여되는 일련번호. 1부터 시작한다. 조건으로 사용하려면 인라인 뷰 안에서 정렬 후 바깥에서 `ROWNUM`을 필터링해야 한다.
 
-### `ROWNUM`
+**TOP-N 서브쿼리** : INLINE VIEW의 정렬된 데이터를 `ROWNUM`으로 결과 행 수를 제한하는 서브쿼리.
 
-`ROWNUM`은 1부터 시작한다.
-`ROWNUM 1` 이란 첫번째 행을 의미하는 것.
+**상위 N개 추출 방법**
 
-`ROWNUM` : `SELECT` 문에서 행이 인출될 때 행에 부여되는 일렬번호. 따라서 ROWNUM을 조건으로 사용하고 싶다면 인라인 뷰를 사용해야 한다.
-
-### TOP-N 서브쿼리
-
-TOP-N 서브쿼리 : INLINE VIEW의 정렬된 데이터를 ROWNUM을 이용해서 결과 행 수를 제한하거나 TOP(N) 조건을 사용하는 서브쿼리
-
-### 상위 N개의 데이터 추출하기
-
-1. 인라인 뷰를 이용해서 원하는 컬럼을 기준으로 정렬한 가상의 테이블 만들기 : `FROM (SELECT * FROM EMPORDER BY SALARY DESC)`
-2. `WHERE ROWNUM ≤ N`을 이용해 상위 N개 데이터를 추출
+1. 인라인 뷰로 정렬한 가상 테이블을 만든다 : `FROM (SELECT * FROM EMP ORDER BY SALARY DESC)`.
+2. `WHERE ROWNUM <= N`으로 상위 N개를 추출한다.
 
 ## 계층형 질의와 셀프 조인
 
-### `PRIOR`
-
-`PRIOR`
+**`PRIOR`**
 
 - `WHERE` 절과 함께 쓸 수 없다.
-- `PRIOR` 가 **하위 계층(자식 컬럼)**에 붙으면 **순방향 전개**
-- `PRIOR` 가 **상위 계층(부모 컬럼)**에 붙으면 **역방향 전개**
+- `PRIOR`가 자식 컬럼에 붙으면 순방향 전개.
+- `PRIOR`가 부모 컬럼에 붙으면 역방향 전개.
 
-### `CONNECT_BY_ISLEAF`
-
-`CONNECT_BY_ISLEAF`
-
-Oracle 계층형 쿼리에서 쓰는 가상 컬럼.
-
-현재 행이 리프 노드인지 여부를 알려준다.
-
-1이면 리프노드, 0이면 리프노드가 아니라는 뜻이다.
+**`CONNECT_BY_ISLEAF`** : Oracle 계층형 쿼리에서 현재 행이 리프 노드인지 여부를 나타내는 가상 컬럼. 1이면 리프 노드, 0이면 리프 노드가 아니다.
 
 ## PIVOT 절과 UNPIVOT 절
 
-### `UNPIVOT`
-
-열을 행으로 전환하는 연산
-
-## 절차형 SQL
-
-절차형 SQL을 이용해서 PROCEDURE, TRIGGER, USER DEFINED FUNCTION을 만들 수 있다.
+**`UNPIVOT`** : 열을 행으로 전환하는 연산.
 
 ## 정규 표현식
 
-### 정규표현식
+**정규 표현식 기본 문자**
 
-`^`는 시작, `$`는 끝.
-`^[AZ].*[0-9]$` 는 대문자 알파벳으로 시작하고 숫자로 끝나는 문자열을 의미함.
+- **`^`** : 문자열의 시작.
+- **`$`** : 문자열의 끝.
 
-Oracle에서는 `LIKE`는 단순한 와일드카드만 지원하기 때문에 복잡한 문자열 패턴 매칭이 필요한 경우에는 `REGEXP_LIKE`를 사용해야 한다.
+`^[AZ].*[0-9]$` : 대문자 알파벳으로 시작하고 숫자로 끝나는 문자열
+
+**`REGEXP_LIKE`** : `LIKE`는 단순한 와일드카드만 지원하므로, 복잡한 문자열 패턴 매칭이 필요한 경우 `LIKE` 대신 사용한다.
