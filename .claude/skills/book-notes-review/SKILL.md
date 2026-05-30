@@ -7,7 +7,7 @@ argument-hint: <노트 파일 경로>
 ## Derived Values
 
 - 노트 파일 경로 : $ARGUMENTS[0]
-- 현재 날짜 : !`date +"%Y-%m-%d"`
+- 현재 날짜와 시간 : !`date +"%Y-%m-%dT%H:%M:%S%z"`
 
 ## Steps
 
@@ -55,7 +55,7 @@ argument-hint: <노트 파일 경로>
 ### Finalize
 
 - 사실 오류가 남아있으면 status를 `reviewed`로, 없으면 `completed`로 변경한다.
-- status가 `completed`이고 date가 비어있으면 현재 날짜를 기록한다.
+- status가 `completed`이고 date가 비어있으면 현재 날짜와 시간을 기록한다.
 
 ## Exceptions
 
